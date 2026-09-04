@@ -8,7 +8,7 @@ At 2026/08/25 Web API was changed !
 https://developer.mozilla.org/en-US/docs/Web/API/Device_orientation_events/Detecting_device_orientation
 
 from Chrome Ver.152
-We need repuestPermission like this code .
+We need requestPermission like this code .
 
 TSV means Tiny Star Viewer.
 You are also welcome to
