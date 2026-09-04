@@ -37,10 +37,10 @@ function MotionActivate() {
             }
         } else {
             // 権限は不要、イベントリスナーを直接追加
-            window.addEventListener("deviceorientation", handle_orientation);
+            window.addEventListener("deviceorientationabsolute", handle_orientation);
             motion_init = true;
         }
     }
-    // NOT SUPPORETD
+
 }
 

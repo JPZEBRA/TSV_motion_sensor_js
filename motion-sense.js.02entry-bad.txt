@@ -1,0 +1,12 @@
+/* ACTIVATION  FUNCTION  */
+/* (IT'S FAIL )          */
+
+function MotionActivate() {
+
+    if(window.DeviceOrientationEvent != undefined ) {
+        window.addEventListener("deviceorientationabsolute", handle_orientation);
+        motion_init = true;
+    }
+
+}
+
