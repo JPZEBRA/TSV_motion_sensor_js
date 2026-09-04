@@ -1,0 +1,46 @@
+/* ACTIVATION  FUNCTION  */
+/* YOU HAVE TO CALL THIS */
+/* BY MANUAL UI          */
+
+function MotionActivate() {
+
+    const ua = navigator.userAgent.toLowerCase()
+    if (/ipod|ipad|iphone|macintosh/.test(ua) && 'ontouchend' in document) motion_ios = true;
+
+    if(window.DeviceOrientationEvent != undefined ) {
+
+        if (typeof DeviceOrientationEvent.requestPermission === "function") {
+
+            if(motion_ios) {
+
+                window.DeviceOrientationEvent.requestPermission().then( (permission) => {
+                    if(permission === "granted" ) {
+                        window.addEventListener("deviceorientation",handle_orientation);
+                        motion_init = true;
+                    }
+                });
+
+            } else {
+
+                Promise.all([
+                    DeviceMotionEvent.requestPermission(),
+                    DeviceOrientationEvent.requestPermission(),
+                ]).then(([motionPermission, orientationPermission]) => {
+                    if (
+                        motionPermission === "granted" &&
+                        orientationPermission === "granted"
+                    ) {
+                        window.addEventListener("deviceorientationabsolute", handle_orientation);
+                        motion_init = true;
+                    }
+                });
+            }
+        } else {
+            // 権限は不要、イベントリスナーを直接追加
+            window.addEventListener("deviceorientation", handle_orientation);
+            motion_init = true;
+        }
+    }
+    // NOT SUPPORETD
+}
+
