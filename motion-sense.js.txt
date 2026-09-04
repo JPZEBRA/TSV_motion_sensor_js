@@ -1,0 +1,227 @@
+/* TINY STAR VIEWER      */
+/* MOTION SENSOR Ver 2.6 */
+/* TYPE:FULL-AUTO        */
+/* Author:K-ARAI         */
+/* created on 2026.03.10 */
+/* revised on 2026.09.04 */
+/* Version 2.6.1         */
+/* WITH MIT-LICENSE ,    */
+/* USE FREE !!!          */
+/* I WELCOME YOUR REPORT */
+
+/* PRIVATE TEST          */
+/* QUALIFIED :           */
+/* SHARP AQUOS wish      */
+/* SHARP AQUOS wish 5    */
+/* APPLE iPad 6th-Gen    */
+/* ( iPad OS 17.7.10 )   */
+/* APPLE iPhone SE       */
+/* ( iOS 18.5 )          */
+
+/* 2026.09               */
+/* TO DETECT AZIMUTH     */
+/* FROM WEB APPS,        */
+/* 'REQUEST PERMISSION'  */
+/* WILL BECOME ESSENTIAL */
+
+
+/* CONDITION */
+var motion_init = false;
+var motion_ios = false;
+
+/* ORIENTATION VAR */
+var mobile_alpha = 0;
+var mobile_beta = 0;
+var mobile_gamma = 0;
+
+/* DETECTED DIRECTION */
+
+var center_vh = 0;
+var center_vd = 0;
+
+var tilt_b = 0;
+var tilt_g = 0;
+
+/* ACTIVATION */
+
+
+function MotionActivate() {
+
+    const ua = navigator.userAgent.toLowerCase()
+    if (/ipod|ipad|iphone|macintosh/.test(ua) && 'ontouchend' in document) motion_ios = true;
+
+    if(window.DeviceOrientationEvent != undefined ) {
+
+        if (typeof DeviceOrientationEvent.requestPermission === "function") {
+
+            if(motion_ios) {
+
+                window.DeviceOrientationEvent.requestPermission().then( (permission) => {
+                    if(permission === "granted" ) {
+                        window.addEventListener("deviceorientation",handle_orientation);
+                        motion_init = true;
+                    }
+                });
+
+            } else {
+
+                Promise.all([
+                    DeviceMotionEvent.requestPermission(),
+                    DeviceOrientationEvent.requestPermission(),
+                ]).then(([motionPermission, orientationPermission]) => {
+                    if (
+                        motionPermission === "granted" &&
+                        orientationPermission === "granted"
+                    ) {
+                        window.addEventListener("deviceorientationabsolute", handle_orientation);
+                        motion_init = true;
+                    }
+                });
+            }
+        } else {
+            // 権限は不要、イベントリスナーを直接追加
+            window.addEventListener("deviceorientation", handle_orientation);
+            motion_init = true;
+        }
+    }
+    // NOT SUPPORETD
+}
+
+/* VECTOR CHECKER */
+
+let screen_angle = null;
+
+let alpha_sign = +1;
+let beta_sign  = +1;
+let gamma_sign = +1;
+
+let motion_absolute = false;
+
+/* MANUAL RESET */
+
+function reset_sensor() {
+
+    screen_angle = null;
+
+}
+
+/* HANDLE MOTION */
+
+function handle_orientation(event) {
+
+    let a = event.alpha;
+    let b = event.beta;
+    let g = event.gamma;
+
+    motion_absolute = event.absolute;
+
+    // Evil spirits, begone!
+    if (a == null || b == null || g == null) return;
+    if (isNaN(a) || isNaN(b) || isNaN(g)) return;
+    if (a === 0 && b === 0 && g === 0) return;
+
+
+    // 座標軸を揃える
+    mobile_alpha  = (alpha_sign ) * a;
+    mobile_beta   = (beta_sign  ) * b;
+    mobile_gamma  = (gamma_sign ) * g;
+
+    tilt_b = mobile_beta;
+    tilt_g = mobile_gamma;
+
+    //  端末の持ち方：画面の向き
+    let screenAngle =
+        (screen.orientation && screen.orientation.angle) ||
+        window.orientation || 0;
+
+    const ua = navigator.userAgent || "";
+    const platform = navigator.platform || "";
+    const maxTouch = navigator.maxTouchPoints || 0;
+
+    const isiOS =
+        /iPhone|iPod/.test(ua) ||                     // iPhone / iPod
+        (/iPad/.test(ua)) ||                          // 古い iPad
+        (platform === "MacIntel" && maxTouch > 1);    // iPadOS（Mac と名乗る iPad）
+
+
+    const isiPad =
+        navigator.userAgent.includes("iPad") ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    if(isiOS) { // 嘘ついてるぞ！気を付けろ！
+        screenAngle = window.orientation;
+        if(screenAngle < 0) screenAngle += 360;
+    }
+
+    if(screenAngle != screen_angle) {
+        screen_angle = screenAngle;
+    }
+
+//    show_screenangle();
+
+    let beta  = mobile_beta;
+    let gamma = mobile_gamma;
+
+    // 入れ替わるよ！
+    switch (screenAngle) {
+        case 0:
+            beta  = mobile_beta;
+            gamma = mobile_gamma;
+            break;
+        case 90:
+            beta  = -mobile_gamma;
+            gamma =  mobile_beta;
+            break;
+        case 180:
+            beta  = -mobile_beta;
+            gamma = -mobile_gamma;
+            break;
+        case 270:
+            beta  =  mobile_gamma;
+            gamma = -mobile_beta;
+            break;
+        default:
+            beta  = mobile_beta;
+            gamma = mobile_gamma;
+            break;
+    }
+
+    let alpha_fixed = mobile_alpha;
+    let compass_dir = undefined;
+
+    if (isiOS && typeof event.webkitCompassHeading === "number") {
+        // iOS 専用：方位
+        compass_dir = event.webkitCompassHeading;
+    }
+
+    // 最終的な上下角
+    center_vh = beta;
+
+    // 最終的な方位：右回り
+
+    // アプリに合わせて
+    let direction_to_zero = 180;
+
+    if(compass_dir != undefined) {
+        center_vd = compass_dir + screenAngle - direction_to_zero;
+        motion_absolute = true;
+    } else { 
+        center_vd = direction_to_zero - alpha_fixed + screenAngle;
+    }
+
+    // SAFETY
+    if(center_vd<-360) center_vd += 360;
+    if(center_vd>+360) center_vd -= 360;
+    if(center_vd<-180) center_vd += 360;
+    if(center_vd>+180) center_vd -= 360;
+
+    return;
+
+}
+
+function show_orientation() {
+   var mes = "A:" + Math.round(mobile_alpha) + " B:" + Math.round(mobile_beta) + " G:" + Math.round(mobile_gamma);
+   set_message(mes,"green",30);
+   show_message();
+}
+
