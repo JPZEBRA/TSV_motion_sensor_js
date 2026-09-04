@@ -27,6 +27,7 @@
 
 /* CONDITION */
 var motion_init = false;
+var motion_ios = false;
 
 /* ORIENTATION VAR */
 var mobile_alpha = 0;
