@@ -53,6 +53,8 @@ function MotionActivate() {
             }
             motion_init = true;
         }
+    } else {
+        sensor_denied = true;
     }
 
 }
