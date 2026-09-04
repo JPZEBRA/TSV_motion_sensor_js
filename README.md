@@ -16,17 +16,11 @@ https://www.tinystarviewer.com/
 
 JPZEBRA
 
-/* PRIVATE TEST          */
-/* QUALIFIED :           */
-/* SHARP AQUOS wish      */
-/* SHARP AQUOS wish 5    */
-/* APPLE iPad 6th-Gen    */
-/* ( iPad OS 17.7.10 )   */
-/* APPLE iPhone SE       */
-/* ( iOS 18.5 )          */
-
-/* 2026.09               */
-/* TO DETECT AZIMUTH     */
-/* FROM WEB APPS,        */
-/* 'REQUEST PERMISSION'  */
-/* WILL BECOME ESSENTIAL */
+PRIVATE TEST
+QUALIFIED :
+SHARP AQUOS wish
+SHARP AQUOS wish 5
+APPLE iPad 6th-Gen
+( iPad OS 17.7.10 )
+APPLE iPhone SE
+( iOS 18.5 )
