@@ -41,9 +41,16 @@ function MotionActivate() {
                     }
                 });
             }
+
         } else {
-            // 権限は不要、イベントリスナーを直接追加
-            window.addEventListener("deviceorientationabsolute", handle_orientation);
+            // 権限不要の古い環境
+            if (motion_ios) {
+                // iOS Safari は絶対に deviceorientation
+                window.addEventListener("deviceorientation", handle_orientation);
+            } else {
+                // Android / 古い Chrome は absolute が来る
+                window.addEventListener("deviceorientationabsolute", handle_orientation);
+            }
             motion_init = true;
         }
     }
