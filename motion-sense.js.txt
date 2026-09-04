@@ -4,7 +4,7 @@
 /* Author:K-ARAI         */
 /* created on 2026.03.10 */
 /* revised on 2026.09.04 */
-/* Version 2.6.1         */
+/* Version 2.6.2         */
 /* WITH MIT-LICENSE ,    */
 /* USE FREE !!!          */
 /* I WELCOME YOUR REPORT */
@@ -42,6 +42,7 @@ var center_vd = 0;
 var tilt_b = 0;
 var tilt_g = 0;
 
+var sensor_denied = false;
 var motion_absolute = false;
 var screen_angle = null;
 
@@ -58,12 +59,16 @@ function MotionActivate() {
 
         if (typeof DeviceOrientationEvent.requestPermission === "function") {
 
+            sensor_denied = false;
+
             if(motion_ios) {
 
                 window.DeviceOrientationEvent.requestPermission().then( (permission) => {
                     if(permission === "granted" ) {
                         window.addEventListener("deviceorientation",handle_orientation);
                         motion_init = true;
+                    } else {
+                        sensor_denied = true;
                     }
                 });
 
@@ -79,6 +84,8 @@ function MotionActivate() {
                     ) {
                         window.addEventListener("deviceorientationabsolute", handle_orientation);
                         motion_init = true;
+                    } else {
+                        sensor_denied = true;
                     }
                 });
             }
@@ -88,7 +95,7 @@ function MotionActivate() {
             motion_init = true;
         }
     }
-    // NOT SUPPORETD
+
 }
 
 /* VECTOR CHECKER */

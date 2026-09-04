@@ -11,12 +11,16 @@ function MotionActivate() {
 
         if (typeof DeviceOrientationEvent.requestPermission === "function") {
 
+            sensor_denied = false;
+
             if(motion_ios) {
 
                 window.DeviceOrientationEvent.requestPermission().then( (permission) => {
                     if(permission === "granted" ) {
                         window.addEventListener("deviceorientation",handle_orientation);
                         motion_init = true;
+                    } else {
+                        sensor_denied = true;
                     }
                 });
 
@@ -32,6 +36,8 @@ function MotionActivate() {
                     ) {
                         window.addEventListener("deviceorientationabsolute", handle_orientation);
                         motion_init = true;
+                    } else {
+                        sensor_denied = true;
                     }
                 });
             }
@@ -43,4 +49,3 @@ function MotionActivate() {
     }
 
 }
-
